@@ -1,14 +1,37 @@
-
 import React from 'react';
+import { SparklesIcon, CloudIcon } from './icons';
 
-const Loader: React.FC<{ message: string }> = ({ message }) => {
+interface LoaderProps {
+  message?: string;
+}
+
+const Loader: React.FC<LoaderProps> = ({ message = "AI is analyzing infrastructure incident and telemetry..." }) => {
   return (
-    <div className="flex flex-col items-center justify-center space-y-4 p-8 bg-gray-800/80 rounded-lg">
-      <svg className="animate-spin h-10 w-10 text-cyan-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-      </svg>
-      <p className="text-lg font-medium text-gray-200">{message}</p>
+    <div className="w-full flex flex-col items-center justify-center py-14 px-6 bg-white/80 backdrop-blur-md border border-[#EAE7DF] rounded-3xl shadow-card relative overflow-hidden my-6">
+      {/* Ambient background glow */}
+      <div className="absolute inset-0 bg-gradient-to-r from-[#B7ACF5]/10 via-[#7B9EFF]/10 to-transparent blur-2xl pointer-events-none" />
+
+      <div className="relative mb-5">
+        <div className="w-16 h-16 rounded-3xl bg-[#F4F1FD] border border-[#DDD6FE] shadow-lavender-glow flex items-center justify-center text-[#7C3AED] relative animate-pulse">
+          <CloudIcon className="w-8 h-8 text-[#9A8CE8]" />
+          <div className="absolute -top-1 -right-1 w-6 h-6 rounded-full bg-white border border-[#DDD6FE] shadow-sm flex items-center justify-center text-[#2563EB]">
+            <SparklesIcon className="w-3.5 h-3.5 animate-spin" />
+          </div>
+        </div>
+      </div>
+
+      <h4 className="text-base font-serif text-[#171717] tracking-tight text-center">
+        Processing Cloud Diagnostics
+      </h4>
+      <p className="text-xs text-[#737373] mt-1.5 text-center max-w-md leading-relaxed">
+        {message}
+      </p>
+
+      {/* Modern progressive status steps */}
+      <div className="mt-6 flex items-center gap-2 text-[11px] text-[#858585]">
+        <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-ping" />
+        <span>Gemini Multimodal Inference • Evaluating Root Cause</span>
+      </div>
     </div>
   );
 };

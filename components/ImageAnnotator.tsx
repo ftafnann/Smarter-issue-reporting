@@ -1,4 +1,3 @@
-
 import React, { useRef, useEffect, useState, useCallback } from 'react';
 import { PencilIcon, TypeIcon, UndoIcon, TrashIcon, RectangleIcon, CircleIcon, EraserIcon } from './icons';
 
@@ -16,7 +15,7 @@ type Annotation =
 
 type Tool = 'draw' | 'text' | 'rectangle' | 'circle' | 'eraser';
 
-const COLORS = ['#EF4444', '#F59E0B', '#10B981', '#3B82F6', '#8B5CF6'];
+const COLORS = ['#DC2626', '#EA580C', '#16A34A', '#2563EB', '#7C3AED', '#171717'];
 
 const ImageAnnotator: React.FC<ImageAnnotatorProps> = ({ src, onComplete, onCancel }) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -75,7 +74,6 @@ const ImageAnnotator: React.FC<ImageAnnotatorProps> = ({ src, onComplete, onCanc
         ctx.stroke();
       }
     });
-    // Reset composite operation
     ctx.globalCompositeOperation = 'source-over';
   }, [history]);
   
@@ -115,18 +113,15 @@ const ImageAnnotator: React.FC<ImageAnnotatorProps> = ({ src, onComplete, onCanc
     if (!canvas) return { x: 0, y: 0 };
     const rect = canvas.getBoundingClientRect();
     
-    // Calculate scale factors
     const scaleX = canvas.width / rect.width;
     const scaleY = canvas.height / rect.height;
 
     const clientX = 'touches' in event ? event.touches[0].clientX : event.clientX;
     const clientY = 'touches' in event ? event.touches[0].clientY : event.clientY;
 
-    // Get mouse position relative to the element
     const canvasX = clientX - rect.left;
     const canvasY = clientY - rect.top;
     
-    // Apply scaling to get coordinates on the drawing buffer
     return {
       x: canvasX * scaleX,
       y: canvasY * scaleY,
@@ -142,19 +137,19 @@ const ImageAnnotator: React.FC<ImageAnnotatorProps> = ({ src, onComplete, onCanc
 
     let newAnnotation: Annotation | null = null;
     switch (tool) {
-        case 'draw':
-        case 'eraser':
-            newAnnotation = { type: 'path', points: [{ x, y }], color, lineWidth: brushSize, mode: tool === 'draw' ? 'source-over' : 'destination-out' };
-            break;
-        case 'rectangle':
-            newAnnotation = { type: 'rectangle', x, y, width: 0, height: 0, color, lineWidth: brushSize };
-            break;
-        case 'circle':
-            newAnnotation = { type: 'circle', cx: x, cy: y, radius: 0, color, lineWidth: brushSize };
-            break;
+      case 'draw':
+      case 'eraser':
+        newAnnotation = { type: 'path', points: [{ x, y }], color, lineWidth: brushSize, mode: tool === 'draw' ? 'source-over' : 'destination-out' };
+        break;
+      case 'rectangle':
+        newAnnotation = { type: 'rectangle', x, y, width: 0, height: 0, color, lineWidth: brushSize };
+        break;
+      case 'circle':
+        newAnnotation = { type: 'circle', cx: x, cy: y, radius: 0, color, lineWidth: brushSize };
+        break;
     }
     if (newAnnotation) {
-        setHistory(prev => [...prev, newAnnotation!]);
+      setHistory(prev => [...prev, newAnnotation!]);
     }
   };
 
@@ -164,31 +159,31 @@ const ImageAnnotator: React.FC<ImageAnnotatorProps> = ({ src, onComplete, onCanc
     const { x, y } = getCanvasCoordinates(event);
     
     setHistory(prev => {
-        const currentHistory = [...prev];
-        const lastItem = currentHistory[currentHistory.length - 1];
-        if (!lastItem) return currentHistory;
+      const currentHistory = [...prev];
+      const lastItem = currentHistory[currentHistory.length - 1];
+      if (!lastItem) return currentHistory;
 
-        switch (lastItem.type) {
-            case 'path':
-                lastItem.points.push({ x, y });
-                break;
-            case 'rectangle':
-                if(startPointRef.current) {
-                    lastItem.x = Math.min(x, startPointRef.current.x);
-                    lastItem.y = Math.min(y, startPointRef.current.y);
-                    lastItem.width = Math.abs(x - startPointRef.current.x);
-                    lastItem.height = Math.abs(y - startPointRef.current.y);
-                }
-                break;
-            case 'circle':
-                if(startPointRef.current) {
-                    const dx = x - startPointRef.current.x;
-                    const dy = y - startPointRef.current.y;
-                    lastItem.radius = Math.sqrt(dx * dx + dy * dy);
-                }
-                break;
-        }
-        return currentHistory;
+      switch (lastItem.type) {
+        case 'path':
+          lastItem.points.push({ x, y });
+          break;
+        case 'rectangle':
+          if (startPointRef.current) {
+            lastItem.x = Math.min(x, startPointRef.current.x);
+            lastItem.y = Math.min(y, startPointRef.current.y);
+            lastItem.width = Math.abs(x - startPointRef.current.x);
+            lastItem.height = Math.abs(y - startPointRef.current.y);
+          }
+          break;
+        case 'circle':
+          if (startPointRef.current) {
+            const dx = x - startPointRef.current.x;
+            const dy = y - startPointRef.current.y;
+            lastItem.radius = Math.sqrt(dx * dx + dy * dy);
+          }
+          break;
+      }
+      return currentHistory;
     });
     redrawCanvas();
   };
@@ -207,17 +202,17 @@ const ImageAnnotator: React.FC<ImageAnnotatorProps> = ({ src, onComplete, onCanc
   
   const handleTextSubmit = () => {
     if (currentText.trim() === '') {
-        setIsTextInputVisible(false);
-        setCurrentText('');
-        return;
-    };
+      setIsTextInputVisible(false);
+      setCurrentText('');
+      return;
+    }
     const newText: Annotation = {
-        type: 'text',
-        text: currentText,
-        x: textInputPosition.x,
-        y: textInputPosition.y,
-        color,
-        font: `bold ${brushSize * 5 + 10}px sans-serif`
+      type: 'text',
+      text: currentText,
+      x: textInputPosition.x,
+      y: textInputPosition.y,
+      color,
+      font: `bold ${brushSize * 5 + 10}px 'Plus Jakarta Sans', sans-serif`
     };
     setHistory(prev => [...prev, newText]);
     setIsTextInputVisible(false);
@@ -242,17 +237,32 @@ const ImageAnnotator: React.FC<ImageAnnotatorProps> = ({ src, onComplete, onCanc
   };
 
   const ToolButton: React.FC<{ myTool: Tool, label: string, children: React.ReactNode }> = ({ myTool, label, children }) => (
-    <button onClick={() => setTool(myTool)} className={`p-2 rounded-md transition-colors ${tool === myTool ? 'bg-cyan-600 text-white' : 'bg-gray-700 hover:bg-gray-600 text-gray-300'}`} aria-label={label}>
-        {children}
+    <button 
+      type="button"
+      onClick={() => setTool(myTool)} 
+      className={`p-2 rounded-xl transition-all ${
+        tool === myTool 
+          ? 'bg-[#171717] text-white shadow-sm' 
+          : 'text-[#737373] hover:text-[#171717] hover:bg-black/[0.04]'
+      }`} 
+      aria-label={label}
+      title={label}
+    >
+      {children}
     </button>
   );
 
   return (
-    <div className="w-full space-y-4 p-2 sm:p-4 bg-gray-800 border border-gray-700 rounded-lg">
-      <div className="relative w-full flex justify-center items-center">
+    <div className="w-full space-y-4 p-4 bg-white/90 backdrop-blur-md border border-[#EAE7DF] rounded-3xl shadow-card">
+      <div className="flex items-center justify-between pb-3 border-b border-[#EAE7DF]">
+        <h4 className="text-sm font-semibold text-[#171717]">Incident Evidence Annotation</h4>
+        <span className="text-xs text-[#858585]">Highlight key components or anomalies</span>
+      </div>
+
+      <div className="relative w-full flex justify-center items-center bg-[#F8F7F3] rounded-2xl p-2 border border-[#EAE7DF] overflow-hidden">
         <canvas
           ref={canvasRef}
-          className="rounded-md max-w-full h-auto cursor-crosshair"
+          className="rounded-xl max-w-full h-auto cursor-crosshair shadow-sm"
           onMouseDown={startInteraction}
           onMouseMove={moveInteraction}
           onMouseUp={stopInteraction}
@@ -271,50 +281,94 @@ const ImageAnnotator: React.FC<ImageAnnotatorProps> = ({ src, onComplete, onCanc
               onBlur={handleTextSubmit}
               onKeyDown={(e) => e.key === 'Enter' && handleTextSubmit()}
               autoFocus
-              className="bg-gray-900/80 text-white p-1 border border-cyan-400 rounded-sm outline-none"
-              style={{ fontSize: `${brushSize * 5 + 10}px`, fontFamily: 'sans-serif', fontWeight: 'bold', color }}
+              className="bg-white/95 text-[#171717] px-2 py-1 border border-[#B7ACF5] rounded-md shadow-lg outline-none font-sans"
+              style={{ fontSize: `${brushSize * 4 + 12}px`, fontWeight: '600', color }}
+              placeholder="Type label..."
             />
           </div>
         )}
       </div>
 
-       <div className="bg-gray-900/50 p-2 rounded-lg flex flex-wrap justify-center items-center gap-4">
-            <div className="flex items-center gap-2 p-1 bg-gray-800 rounded-md">
-                <ToolButton myTool="draw" label="Drawing tool"><PencilIcon className="w-5 h-5" /></ToolButton>
-                <ToolButton myTool="text" label="Text tool"><TypeIcon className="w-5 h-5" /></ToolButton>
-                <ToolButton myTool="rectangle" label="Rectangle tool"><RectangleIcon className="w-5 h-5" /></ToolButton>
-                <ToolButton myTool="circle" label="Circle tool"><CircleIcon className="w-5 h-5" /></ToolButton>
-                <ToolButton myTool="eraser" label="Eraser tool"><EraserIcon className="w-5 h-5" /></ToolButton>
-            </div>
-            
-            <div className="flex items-center gap-2 p-1 bg-gray-800 rounded-md">
-                {COLORS.map(c => (
-                <button key={c} onClick={() => setColor(c)} style={{ backgroundColor: c }} className={`w-7 h-7 rounded-full transition-transform transform hover:scale-110 ${color === c ? 'ring-2 ring-offset-2 ring-offset-gray-900 ring-white' : ''}`} aria-label={`Color ${c}`}></button>
-                ))}
-            </div>
+      {/* Toolbar Controls */}
+      <div className="p-3 bg-[#F8F7F3] rounded-2xl border border-[#EAE7DF] flex flex-wrap justify-between items-center gap-3">
+        {/* Tools */}
+        <div className="flex items-center gap-1 bg-white p-1 rounded-2xl border border-[#EAE7DF] shadow-sm">
+          <ToolButton myTool="draw" label="Freehand Draw"><PencilIcon className="w-4 h-4" /></ToolButton>
+          <ToolButton myTool="text" label="Add Text Note"><TypeIcon className="w-4 h-4" /></ToolButton>
+          <ToolButton myTool="rectangle" label="Box Region"><RectangleIcon className="w-4 h-4" /></ToolButton>
+          <ToolButton myTool="circle" label="Circle Anomaly"><CircleIcon className="w-4 h-4" /></ToolButton>
+          <ToolButton myTool="eraser" label="Eraser"><EraserIcon className="w-4 h-4" /></ToolButton>
+        </div>
+        
+        {/* Colors */}
+        <div className="flex items-center gap-1.5 bg-white p-1.5 px-3 rounded-2xl border border-[#EAE7DF] shadow-sm">
+          {COLORS.map(c => (
+            <button 
+              key={c} 
+              type="button"
+              onClick={() => setColor(c)} 
+              style={{ backgroundColor: c }} 
+              className={`w-5 h-5 rounded-full transition-transform hover:scale-110 ${
+                color === c ? 'ring-2 ring-offset-2 ring-[#B7ACF5] ring-offset-[#F8F7F3] scale-110' : ''
+              }`} 
+              aria-label={`Color ${c}`}
+            />
+          ))}
+        </div>
 
-            <div className="flex items-center gap-3 p-1 px-3 bg-gray-800 rounded-md">
-                <label htmlFor="brushSize" className="text-sm font-semibold text-gray-400">Size</label>
-                <input 
-                    id="brushSize"
-                    type="range" 
-                    min="1" 
-                    max="20" 
-                    value={brushSize} 
-                    onChange={(e) => setBrushSize(Number(e.target.value))}
-                    className="w-24 cursor-pointer"
-                />
-            </div>
+        {/* Brush Size */}
+        <div className="flex items-center gap-2 bg-white px-3 py-1.5 rounded-2xl border border-[#EAE7DF] shadow-sm">
+          <label htmlFor="brushSize" className="text-xs font-semibold text-[#858585]">Size</label>
+          <input 
+            id="brushSize"
+            type="range" 
+            min="2" 
+            max="18" 
+            value={brushSize} 
+            onChange={(e) => setBrushSize(Number(e.target.value))}
+            className="w-20 accent-[#171717] cursor-pointer"
+          />
+        </div>
 
-             <div className="flex items-center gap-2 p-1 bg-gray-800 rounded-md">
-                <button onClick={handleUndo} disabled={history.length === 0} className="p-2 rounded-md bg-gray-700 hover:bg-gray-600 text-gray-300 disabled:opacity-50 disabled:cursor-not-allowed" aria-label="Undo"><UndoIcon className="w-5 h-5" /></button>
-                <button onClick={handleClear} disabled={history.length === 0} className="p-2 rounded-md bg-gray-700 hover:bg-gray-600 text-gray-300 disabled:opacity-50 disabled:cursor-not-allowed" aria-label="Clear all"><TrashIcon className="w-5 h-5" /></button>
-            </div>
+        {/* Undo / Clear */}
+        <div className="flex items-center gap-1 bg-white p-1 rounded-2xl border border-[#EAE7DF] shadow-sm">
+          <button 
+            type="button"
+            onClick={handleUndo} 
+            disabled={history.length === 0} 
+            className="p-2 rounded-xl text-[#737373] hover:text-[#171717] hover:bg-black/[0.04] disabled:opacity-30 disabled:cursor-not-allowed transition-all" 
+            title="Undo"
+          >
+            <UndoIcon className="w-4 h-4" />
+          </button>
+          <button 
+            type="button"
+            onClick={handleClear} 
+            disabled={history.length === 0} 
+            className="p-2 rounded-xl text-red-500 hover:text-red-700 hover:bg-red-50 disabled:opacity-30 disabled:cursor-not-allowed transition-all" 
+            title="Clear all"
+          >
+            <TrashIcon className="w-4 h-4" />
+          </button>
+        </div>
       </div>
       
-      <div className="flex gap-4 pt-4 border-t border-gray-700">
-        <button onClick={onCancel} className="w-full px-4 py-2 bg-gray-600 text-white font-bold rounded-lg hover:bg-gray-500 transition-colors">Cancel</button>
-        <button onClick={handleComplete} className="w-full px-4 py-2 bg-cyan-600 text-white font-bold rounded-lg hover:bg-cyan-500 transition-colors">Confirm Annotations</button>
+      {/* Action Buttons */}
+      <div className="flex items-center justify-end gap-3 pt-2">
+        <button 
+          type="button"
+          onClick={onCancel} 
+          className="px-5 py-2.5 rounded-2xl bg-white border border-[#EAE7DF] text-xs font-medium text-[#737373] hover:text-[#171717] hover:bg-[#F8F7F3] transition-colors"
+        >
+          Cancel
+        </button>
+        <button 
+          type="button"
+          onClick={handleComplete} 
+          className="px-6 py-2.5 rounded-2xl bg-[#171717] hover:bg-[#2e2e2e] text-white text-xs font-medium shadow-sm hover:shadow-card transition-all"
+        >
+          Confirm Annotations
+        </button>
       </div>
     </div>
   );

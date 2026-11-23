@@ -1,4 +1,3 @@
-
 export enum Priority {
   Low = 'Low',
   Medium = 'Medium',
@@ -8,6 +7,7 @@ export enum Priority {
 export enum Status {
   Reported = 'Reported',
   InProgress = 'In Progress',
+  Completed = 'Completed',
   Resolved = 'Resolved',
 }
 
@@ -30,8 +30,8 @@ export interface Recipient {
 }
 
 export interface Inspector {
-    name: string;
-    phone: string;
+  name: string;
+  phone: string;
 }
 
 export interface AnalysisReport {
@@ -51,6 +51,9 @@ export interface AnalysisReport {
   inspectorUpdateAt?: number;
   imageUrl?: string;
   assignedInspectorUsername?: string;
+  description?: string;
+  location?: Location;
+  cloudService?: string;
 }
 
 export interface Location {
